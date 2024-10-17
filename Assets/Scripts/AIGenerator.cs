@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class AIGenerator : MonoBehaviour
 {
-    public GameObject prefab; // 생성할 프리팹
+    public GameObject[] prefab; // 생성할 프리팹
     public Vector3 centerPosition; // 중심 위치
     public float spawnRadius = 5f; // 생성 범위 반경
     public float spawnInterval = 2f; // 생성 간격 (초)
@@ -23,8 +23,9 @@ public class AIGenerator : MonoBehaviour
             Vector3 randomPosition = centerPosition + (Random.insideUnitSphere * spawnRadius);
             randomPosition.y = centerPosition.y;
 
+            int randomIndex = Random.Range(0, 2);
             // 프리팹 생성
-            Instantiate(prefab, randomPosition, Quaternion.identity);
+            Instantiate(prefab[randomIndex], randomPosition, prefab[randomIndex].transform.rotation);
 
             // 생성 간격 대기
             yield return new WaitForSeconds(spawnInterval);

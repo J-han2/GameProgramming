@@ -1,26 +1,32 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
-    public float speed = 1f;
-    public float lifeTime = 5.0f;
+    public float speed = 10f;     // 총알의 속도
+    public float lifeDuration = 5f;  // 총알의 생존 시간
 
-    private void Start()
+    private float lifeTimer;  // 생존 시간을 추적하는 타이머
+
+    void Start()
     {
-        StartCoroutine(LifeTimer());
+        lifeTimer = lifeDuration;
     }
 
     void Update()
     {
-        transform.Translate(0, 0, speed * Time.deltaTime);
+        // 총알을 앞으로 전진시킵니다.
+        transform.Translate(Vector3.forward * speed * Time.deltaTime);
+
+        // 총알의 생존 시간을 감소시킵니다.
+        lifeTimer -= Time.deltaTime;
+        if (lifeTimer <= 0)
+        {
+            Destroy(gameObject);  // 생존 시간이 다하면 총알을 파괴합니다.
+        }
     }
 
-    //5초 뒤에 삭제
-    IEnumerator LifeTimer()
+    private void OnCollisionEnter(Collision collision)
     {
-        yield return new WaitForSeconds(lifeTime);
-        Destroy(gameObject);
+        Destroy(gameObject);  // 오브젝트와 충돌 후 총알을 파괴합니다.
     }
 }
