@@ -6,31 +6,35 @@ public class EnemyRed : MonoBehaviour
     public float moveSpeed = 3.0f;  // 이동 속도
     private GameObject Base;
     private Vector3 direction;
+    private Rigidbody rb;  // Rigidbody 컴포넌트
     private GameManager manager;
 
     public float lifeTime = 10.0f;
 
+    public float jumpForce = 1f;  // 점프 힘
+    bool isJump = false;
+
     void Start()
     {
-        // "base" 태그가 있는 오브젝트를 찾아 Base 변수에 할당
+        rb = GetComponent<Rigidbody>();  // Rigidbody 컴포넌트 할당
+        isJump = false;
         Base = GameObject.FindGameObjectWithTag("base");
         manager = GameObject.FindGameObjectWithTag("manager").GetComponent<GameManager>();
-        // 10초 후 삭제
         StartCoroutine(LifeTimer());
     }
 
-    void Update()
+    void FixedUpdate()  // Physics 업데이트는 FixedUpdate에서 처리
     {
-        SetDirectionTowardsBase();  // Base의 위치를 향하는 방향을 매 프레임 업데이트
-        MoveTowardsBase();  // Base의 위치로 이동 처리
+        SetDirectionTowardsBase();
+        MoveTowardsBase();
     }
 
     void MoveTowardsBase()
     {
         if (Base != null)
         {
-            // 현재 위치에서 Base의 위치로 이동
-            transform.position += direction * moveSpeed * Time.deltaTime;
+            // Rigidbody를 사용한 위치 이동
+            rb.MovePosition(rb.position + direction * moveSpeed * Time.fixedDeltaTime);
         }
     }
 
@@ -38,32 +42,41 @@ public class EnemyRed : MonoBehaviour
     {
         if (Base != null)
         {
-            // Base 위치로 향하는 벡터 계산
             Vector3 targetDirection = Base.transform.position - transform.position;
             direction = targetDirection.normalized;
         }
     }
 
-    // 지정된 시간 후 삭제
     IEnumerator LifeTimer()
     {
         yield return new WaitForSeconds(lifeTime);
         Destroy(gameObject);
     }
 
-    // 충돌 처리
     private void OnCollisionEnter(Collision collision)
     {
-        // "red" 레이어 오브젝트와 충돌 시 자기 자신 삭제
         if (collision.gameObject.layer == LayerMask.NameToLayer("red"))
         {
             manager.AddKillCount();
             Destroy(gameObject);
+        }
+        if (collision.gameObject.layer == LayerMask.NameToLayer("obstacles")) //장애물과 충돌 시
+        {
+            if (!isJump)
+                StartCoroutine(Jump());
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
         manager.Defeat();
+    }
+
+    IEnumerator Jump()
+    {
+        isJump = true;
+        rb.AddForce(Vector3.up * jumpForce);  // 점프 힘 추가
+        yield return new WaitForSeconds(1.0f);  // 점프 후 일정 시간 대기
+        isJump = false;
     }
 }

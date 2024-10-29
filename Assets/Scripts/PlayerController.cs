@@ -1,10 +1,13 @@
+using System.Collections;
 using UnityEngine;
+using UnityEngine.VFX;
 
 public class PlayerController : MonoBehaviour
 {
     public float speed = 5.0f;
     public float mouseSensitivity = 2.0f; // 마우스 민감도
     public GameObject[] bulletPrefabs;
+    public VisualEffect[] bulletEffects;
     public GameObject playerHead;
     public Material[] playerMat;
     public Transform shootOrigin;
@@ -62,6 +65,9 @@ public class PlayerController : MonoBehaviour
     void Shoot()
     {
         GameObject selectedBullet = bulletPrefabs[bullettype ? 0 : 1];
+        bulletEffects[bullettype ? 0 : 1].Play();
         Instantiate(selectedBullet, shootOrigin.position, shootOrigin.rotation);
     }
+
+    
 }
